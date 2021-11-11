@@ -9,7 +9,7 @@ function MainContainer() {
   const [portStocks, setPortStocks] = useState([])
   const [stocksToDisplay, setStocksToDisplay] = useState([])
   
-  const filteredOrSortedStocks = stocks
+  const [sortBy, setSortBy] = useState('')
 
   useEffect(() => {
     fetch(`http://localhost:3001/stocks`)
@@ -20,13 +20,17 @@ function MainContainer() {
     })
   }, [])
 
-  function handleClick(stockID) {
-    const stockToAdd = stocks.filter(stock => stock.id === stockID)
-    setPortStocks([...portStocks, stockToAdd[0]])
+  function handleClick(stock) {
+    if (!portStocks.includes(stock)) {
+      setPortStocks([...portStocks, stock])
+    }
+    else {
+      alert('This stock is already in your portfolio!')
+    }
   }
 
-  function handleDelete(stockID) {
-    const updatedPortfolio = portStocks.filter(stock => stock.id !== stockID)
+  function handleDelete(deletedStock) {
+    const updatedPortfolio = portStocks.filter(stock => stock.id !== deletedStock.id)
     console.log(updatedPortfolio)
     setPortStocks(updatedPortfolio)
   }
@@ -38,7 +42,7 @@ function MainContainer() {
   }
 
   function onAlphabet(e) {
-    console.log('alphabet')
+    setSortBy('alphabet')
     const stocksAlphabetically = stocksToDisplay.sort(function(a,b) {
       if (a.name < b.name) {
         return -1;
@@ -48,27 +52,22 @@ function MainContainer() {
       }
       return true;
     })
-    console.log(stocksAlphabetically)
     setStocksToDisplay(stocksAlphabetically)
   }
 
   function onPrice(e) {
-    console.log('price')
+    setSortBy('price')
     const stocksByPrice = stocksToDisplay.sort(function(a,b) {
       return a.price - b.price
     })
-    console.log(stocksByPrice)
     setStocksToDisplay(stocksByPrice)
   }
 
-  console.log(stocksToDisplay)
-
   return (
     <div>
-      <SearchBar onAlphabet={onAlphabet} onPrice={onPrice} onFilter={onFilter} />
+      <SearchBar onAlphabet={onAlphabet} onPrice={onPrice} onFilter={onFilter} sortBy={sortBy}/>
       <div className="row">
         <div className="col-8">
-          {console.log(stocksToDisplay)}
           <StockContainer stocks={stocksToDisplay} handleClick={handleClick} />
         </div>
         <div className="col-4">
